@@ -225,8 +225,9 @@ class BatmanBot(SingleServerIRCBot):
         nick = nm_to_n(e.source())
         ch = self.channel
         c.privmsg(ch, nick+": Yes Sir ?")
-        c.privmsg(ch, nick+": You can ask/privmsg me \"stats\" or \"chatlog %Y-%m-%d\" or \"dcc\" if want to chat dcc with me")
-        c.privmsg(ch, nick+": Or do you just want to chat with a calculator :D")
+#        c.privmsg(ch, nick+": You can ask/privmsg me \"stats\" or \"chatlog %Y-%m-%d\" or \"dcc\" if want to chat dcc with me")
+        c.privmsg(ch, nick+": You can ask/privmsg me \"stats\" or for chatlog send me a datstring formatted as %Y-%m-%d ")
+#        c.privmsg(ch, nick+": Or do you just want to chat with a calculator :D")
 
     def said_you_said_me(self, c, e, cmd):
         nick = nm_to_n(e.source())
@@ -244,8 +245,8 @@ class BatmanBot(SingleServerIRCBot):
                 c.privmsg(ch, ": who is "+words[3]+" ?")
         elif cmd in ("hi","hello","Hi","Hello"):
             c.privmsg(ch, "Nice day "+nick)
-        else:
-            c.privmsg(ch, cmd)
+#        else:
+#            c.privmsg(ch, cmd)
 
     def rep_log(self, c, e, param):
         nick = nm_to_n(e.source())
@@ -264,11 +265,11 @@ class BatmanBot(SingleServerIRCBot):
         if cmd == "disconnect":
             quote="Batman is the hero Gotham deserves, but not the one it needs right now"
             c.privmsg(ch, quote)
-            self.disconnect(quote)
-        elif cmd == "die":
-            quote="The Dark Knight Will Rise. Then Fear will find you again"
-            c.privmsg(ch, nick+": "+quote)
-            self.die(quote)
+#            self.disconnect(quote)
+#        elif cmd == "die":
+#            quote="The Dark Knight Will Rise. Then Fear will find you again"
+#            c.privmsg(ch, nick+": "+quote)
+#            self.die(quote)
         elif cmd == "stats":
             for chname, chobj in self.channels.items():
                 c.privmsg(nick, "--- Channel statistics ---")
@@ -282,25 +283,25 @@ class BatmanBot(SingleServerIRCBot):
                 voiced = chobj.voiced()
                 voiced.sort()
                 c.privmsg(nick, "Voiced: " + ", ".join(voiced))
-        elif cmd == "dcc":
-            dcc = self.dcc_listen()
-            c.ctcp("DCC", nick, "CHAT chat %s %d" % (
-                ip_quad_to_numstr(dcc.localaddress),
-                dcc.localport))
+#        elif cmd == "dcc":
+#            dcc = self.dcc_listen()
+#            c.ctcp("DCC", nick, "CHAT chat %s %d" % (
+#                ip_quad_to_numstr(dcc.localaddress),
+#                dcc.localport))
         elif cmd == "chatlog":
-            c.privmsg(ch, "Want to check the web first ? http://irc.launchvn.com/ ")
-            c.privmsg(ch, "Or not? Choose day and check private message (ex: \"2013-04-18\"): ")
+#            c.privmsg(ch, "Want to check the web first ? http://irc.launchvn.com/ ")
+            c.privmsg(ch, "Want to see the chatlog? Send me only a date string as private message (ex: /msg " + str(c.get_nickname()) + " 2019-02-17): ")
         elif re.match(r'(\d{4}-\d{2}-\d{2})',cmd):
             param = cmd
             self.rep_log(c, e, param)
-        elif cmd == "pythonmode":
-            self.pyflg=True
-            c.privmsg(ch, "Welcome to "+cmd)
-        elif cmd == "chatmode":
-            self.pyflg=False
-            self.buf=""
-            self.safe_dict={}
-            c.privmsg(ch, "Welcome to "+cmd)
+#        elif cmd == "pythonmode":
+#            self.pyflg=True
+#            c.privmsg(ch, "Welcome to "+cmd)
+#        elif cmd == "chatmode":
+#            self.pyflg=False
+#            self.buf=""
+#            self.safe_dict={}
+#            c.privmsg(ch, "Welcome to "+cmd)
         else:
             try:
                 self.let_me_see_you(cmd)
@@ -308,7 +309,7 @@ class BatmanBot(SingleServerIRCBot):
                 pass
             try:
                 rel=self.safe_eval(cmd)
-                c.privmsg(ch, rel)
+#                c.privmsg(ch, rel)
             except:
                 self.said_you_said_me(c, e, cmd)
                 if self.pyflg: self.buf.append(cmd)
