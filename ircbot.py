@@ -71,6 +71,7 @@ class SingleServerIRCBot(SimpleIRCClient):
 
         self._nickname = nickname
         self._realname = realname
+
         for c in self.conn.values():
             for i in ["disconnect", "join", "kick", "mode",
                       "namreply", "nick", "part", "quit"]:
@@ -86,17 +87,36 @@ class SingleServerIRCBot(SimpleIRCClient):
 
     def _connect(self):
         """[Internal]"""
+        print "_connect - self._nickname: " + str(self._nickname)
         password = None
         if len(self.server_list[0]) > 2:
             password = self.server_list[0][2]
         try:
-            self.connect(self.server_list[0][0],
-                         self.server_list[0][1],
-                         self._nickname,
-                         password,
-                         ircname=self._realname)
-        except ServerConnectionError:
-            pass
+
+                if isinstance(self._nickname,basestring):
+                	print "_connect - nickname is self._nickname: " + str(self._nickname)
+
+                	self.connect(self.server_list[0][0],
+                         	self.server_list[0][1],
+                         	self._nickname,
+                         	password,
+                         	ircname=self._realname)
+
+        	else:
+                        newnickname = str(next(iter(self._nickname), "GuestChatLogBot"))
+                        print "_connect - self._nickname next is: " + newnickname
+                        if isinstance(newnickname,basestring):
+                                print "_connect - newnickname is basestring: " + str(newnickname)
+                		self.connect(self.server_list[0][0],
+                         		self.server_list[0][1],
+                         		newnickname,
+                         		password,
+                         		ircname=newnickname)
+        except ServerConnectionError as e:
+        	print(e)
+		pass
+
+
 
     def _connect_all(self):
         """[Internal]"""
@@ -105,6 +125,7 @@ class SingleServerIRCBot(SimpleIRCClient):
             password = self.server_list[0][2]
         try:
             for s in self.server_list:
+                print "_connect_all - self._nickname[self.server_list.index(s)]: " + str(self._nickname[self.server_list.index(s)])
                 self.connect(s[0],
                              s[1],
                              self._nickname[self.server_list.index(s)],
@@ -115,12 +136,14 @@ class SingleServerIRCBot(SimpleIRCClient):
 
     def _on_disconnect(self, c, e):
         """[Internal]"""
+	print "internal on disconnect"
         self.channels = IRCDict()
         self.connection.execute_delayed(self.reconnection_interval,
                                         self._connected_checker)
 
     def _on_join(self, c, e):
         """[Internal]"""
+	print "internal on join"
         ch = e.target()
         nick = nm_to_n(e.source())
         if nick == c.get_nickname():
@@ -233,9 +256,11 @@ class SingleServerIRCBot(SimpleIRCClient):
         jump_server is called.
         """
         if self.connection.is_connected():
+            print "jump_server - is_connected so disconnect now"
             self.connection.disconnect(msg)
 
         self.server_list.append(self.server_list.pop(0))
+        print "jump_server - connect to new server"
         self._connect()
 
     def add_server(self, msg="Changing servers"):
