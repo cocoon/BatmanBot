@@ -733,7 +733,21 @@ class ServerConnection(Connection):
 
     def nick(self, newnick):
         """Send a NICK command."""
-        self.send_raw("NICK " + newnick)
+	print "newnick given was: " + str(newnick)
+	if isinstance(newnick,basestring):
+		print "newnick is basestring: " + str(newnick)
+        	self.send_raw("NICK " + str(newnick))
+	else:
+		try:
+			newnickname = "GuestChatLogBot"
+#			newnickname = str(next(iter(newnick), "GuestChatLogBot"))
+			print "newnick next is: " + newnickname
+			if isinstance(newnickname,basestring):
+				print "newnickname is basestring: " + str(newnickname)
+				self.send_raw("NICK " + newnickname)
+		except TypeError:
+			print "newnick TypeError: " + str(newnick)
+			self.send_raw("NICK " + newnick)
 
     def notice(self, target, text):
         """Send a NOTICE command."""
@@ -782,8 +796,9 @@ class ServerConnection(Connection):
     def send_raw(self, string):
         """Send raw string to the server.
 
-        The string will be padded with appropriate CR LF.
+        The string encoded in utf-8 will be padded with appropriate CR LF.
         """
+        string=string.encode('utf-8')
         if self.socket is None:
             raise ServerNotConnectedError, "Not connected."
         try:

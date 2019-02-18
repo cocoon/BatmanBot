@@ -53,7 +53,7 @@ class BatmanBot(SingleServerIRCBot):
     main_server=""
     pswd=""
     def __init__(self, channel, pswd, nickname, server, main_server):
-        SingleServerIRCBot.__init__(self, [(s, 6667) for s in server], main_server, nickname, nickname)
+        SingleServerIRCBot.__init__(self, [(s, 6667) for s in server], main_server, nickname, nickname, 15)
         self.channel = channel
         self.pswd = pswd
         self.engine = create_engine('sqlite:///db/irclog.db', echo=True)
@@ -100,7 +100,12 @@ class BatmanBot(SingleServerIRCBot):
     def on_join(self, c, e):
         nick = nm_to_n(e.source())
         print "join"
-
+    
+    def _on_disconnect(self, c, e):
+        print "on_disconnect reconnect in: " + str(self.reconnection_interval)
+#        self.channels = IRCDict()
+        self.connection.execute_delayed(self.reconnection_interval,
+                                        self._connected_checker)
 #    Validate
     def validate(self, str):
         ary=["import","os","shlex","command","subprocess","execl","open","login","urandom"]
@@ -265,7 +270,7 @@ class BatmanBot(SingleServerIRCBot):
         if cmd == "disconnect":
             quote="Batman is the hero Gotham deserves, but not the one it needs right now"
             c.privmsg(ch, quote)
-#            self.disconnect(quote)
+            self.disconnect(quote)
 #        elif cmd == "die":
 #            quote="The Dark Knight Will Rise. Then Fear will find you again"
 #            c.privmsg(ch, nick+": "+quote)
@@ -327,6 +332,7 @@ def main():
     nickname = CONFIG.NICKNAME
     main_server = CONFIG.MAIN_SERVER
 
+    
     bot = BatmanBot(channel, pswd, nickname, server, main_server)
     bot.start()
 
